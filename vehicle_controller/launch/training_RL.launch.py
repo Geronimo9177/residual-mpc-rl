@@ -17,6 +17,7 @@ def generate_launch_description():
     training_mode                = LaunchConfiguration('training_mode')
     seed                         = LaunchConfiguration('seed')
     checkpoint_dir                = LaunchConfiguration('checkpoint_dir')
+    output_dir                   = LaunchConfiguration('output_dir')
     run_id                      = PythonExpression([
         "'", RUN_ID_BASE, "_seed_' + str(", seed, ")"
     ])
@@ -35,6 +36,11 @@ def generate_launch_description():
         'checkpoint_dir',
         default_value=CHECKPOINT_DIR,
         description='Directory ppo_agent loads/saves checkpoints from (picks the highest-episode file matching run_id)',
+    )
+    declare_output_dir = DeclareLaunchArgument(
+        'output_dir',
+        default_value=LOG_DIR,
+        description='Directory test_logger writes its per-episode CSV to (test mode only)',
     )
 
     webots_pkg       = get_package_share_directory('vehicle_webots')
@@ -102,7 +108,7 @@ def generate_launch_description():
         output='screen',
         condition=UnlessCondition(training_mode),
         parameters=[{
-            'output_dir': LOG_DIR,
+            'output_dir': output_dir,
             'run_id':     run_id,
             'seed':       seed,
         }]
@@ -126,6 +132,7 @@ def generate_launch_description():
         declare_training_mode,
         declare_seed,
         declare_checkpoint_dir,
+        declare_output_dir,
         webots_launch,
         controller_launch,
         rl_master_node,
